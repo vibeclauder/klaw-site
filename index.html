@@ -5,22 +5,34 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>KlawTrade — Algorithmic Edge</title>
 
-  <link rel="icon" id="dyn-favicon" type="image/png" href="">
   <script>
-  /* Canvas favicon — renders reliably across all protocols */
+  /* Favicon: create the link entirely in JS — never set href="" first */
   (function(){
     var c=document.createElement('canvas');c.width=64;c.height=64;
     var x=c.getContext('2d');
+    /* rounded rect background */
     x.fillStyle='#09090b';
     x.beginPath();
-    if(x.roundRect)x.roundRect(0,0,64,64,10);else{x.moveTo(10,0);x.lineTo(54,0);x.quadraticCurveTo(64,0,64,10);x.lineTo(64,54);x.quadraticCurveTo(64,64,54,64);x.lineTo(10,64);x.quadraticCurveTo(0,64,0,54);x.lineTo(0,10);x.quadraticCurveTo(0,0,10,0);}
-    x.fill();
+    var r=10;
+    x.moveTo(r,0);x.lineTo(64-r,0);x.arcTo(64,0,64,r,r);
+    x.lineTo(64,64-r);x.arcTo(64,64,64-r,64,r);
+    x.lineTo(r,64);x.arcTo(0,64,0,64-r,r);
+    x.lineTo(0,r);x.arcTo(0,0,r,0,r);
+    x.closePath();x.fill();
+    /* K glyph */
     x.fillStyle='#c8c8cc';
-    x.font='bold 46px Arial';x.textAlign='center';x.textBaseline='alphabetic';
-    x.fillText('K',36,54);
-    x.font='bold 17px monospace';x.textAlign='left';
-    x.fillText('$',8,22);
-    document.getElementById('dyn-favicon').href=c.toDataURL('image/png');
+    x.font='bold 48px Arial,sans-serif';
+    x.textAlign='center';x.textBaseline='alphabetic';
+    x.fillText('K',38,54);
+    /* $ superscript */
+    x.font='bold 18px "Courier New",monospace';
+    x.textAlign='left';
+    x.fillText('$',7,22);
+    /* inject link — no pre-existing link to confuse the browser */
+    var lnk=document.createElement('link');
+    lnk.rel='icon';lnk.type='image/png';
+    lnk.href=c.toDataURL('image/png');
+    document.head.appendChild(lnk);
   })();
   </script>
 
