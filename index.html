@@ -5,36 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>KlawTrade — Algorithmic Edge</title>
 
-  <script>
-  /* Favicon: create the link entirely in JS — never set href="" first */
-  (function(){
-    var c=document.createElement('canvas');c.width=64;c.height=64;
-    var x=c.getContext('2d');
-    /* rounded rect background */
-    x.fillStyle='#09090b';
-    x.beginPath();
-    var r=10;
-    x.moveTo(r,0);x.lineTo(64-r,0);x.arcTo(64,0,64,r,r);
-    x.lineTo(64,64-r);x.arcTo(64,64,64-r,64,r);
-    x.lineTo(r,64);x.arcTo(0,64,0,64-r,r);
-    x.lineTo(0,r);x.arcTo(0,0,r,0,r);
-    x.closePath();x.fill();
-    /* K glyph */
-    x.fillStyle='#c8c8cc';
-    x.font='bold 48px Arial,sans-serif';
-    x.textAlign='center';x.textBaseline='alphabetic';
-    x.fillText('K',38,54);
-    /* $ superscript */
-    x.font='bold 18px "Courier New",monospace';
-    x.textAlign='left';
-    x.fillText('$',7,22);
-    /* inject link — no pre-existing link to confuse the browser */
-    var lnk=document.createElement('link');
-    lnk.rel='icon';lnk.type='image/png';
-    lnk.href=c.toDataURL('image/png');
-    document.head.appendChild(lnk);
-  })();
-  </script>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='6' fill='%2309090b'/%3E%3Ctext x='22' y='33' text-anchor='middle' font-size='30' fill='%23c8c8cc' font-family='Arial%2CHelvetica%2Csans-serif' font-weight='700'%3EK%3C%2Ftext%3E%3Ctext x='10' y='14' text-anchor='middle' font-size='11' fill='%23c8c8cc' font-family='%27Courier+New%27%2Cmonospace' font-weight='900'%3E$%3C%2Ftext%3E%3C%2Fsvg%3E"/>
 
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=IBM+Plex+Mono:wght@300;400;500&family=Bebas+Neue&display=swap" rel="stylesheet"/>
@@ -953,8 +924,10 @@ const seqSub=document.getElementById('seq-sub'),seqLogo=document.getElementById(
 const seqVeil=document.getElementById('seq-veil'),seqCta=document.getElementById('seq-cta');
 const video=document.getElementById('seq-video');
 
-/* Video is NOT autoplaying — we drive currentTime via scroll */
+/* Video is NOT autoplaying — starts playing when user first scrolls */
 video.pause();
+video.currentTime = 0;
+let videoTriggered = false;
 
 function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
 function easeOut(t){return 1-Math.pow(1-clamp(t,0,1),2.4)}
@@ -971,13 +944,17 @@ function onScroll(){
     if(lockPosition===null)lockPosition=window.scrollY;
     else if(window.scrollY<lockPosition-4){window.scrollTo({top:lockPosition,behavior:'instant'});return;}
   }
+  /* Trigger video play on first scroll, pause when past reveal */
+  if(!videoTriggered && window.scrollY > 4){
+    videoTriggered = true;
+    video.play().catch(()=>{});
+  }
+  if(p >= 0.60 && !video.paused) video.pause();
+  if(p < 0.60 && videoTriggered && video.paused && video.currentTime < video.duration)
+    video.play().catch(()=>{});
+
   if(Math.abs(p-lastP)<0.0005)return;
   lastP=p;
-
-  /* Scroll-drive the video frame-exactly */
-  if(video.readyState>=1&&video.duration&&isFinite(video.duration)){
-    video.currentTime=Math.min(p/0.58,1)*video.duration;
-  }
 
   const bgW=easeOut(prog(p,.20,.55));
   const c=Math.round(bgW*255);
@@ -995,8 +972,6 @@ function onScroll(){
   seqCta.style.pointerEvents=ctaP>.12?'all':'none';
 }
 window.addEventListener('scroll',onScroll,{passive:true});
-/* Re-run on metadata load in case video wasn't ready on first scroll */
-video.addEventListener('loadedmetadata',()=>onScroll());
 onScroll();
 
 /* ── UNLOCK ── */
