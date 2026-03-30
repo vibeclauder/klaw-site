@@ -136,7 +136,7 @@
   .nav-cta:hover { background:rgba(255,255,255,.05); color:#fff !important; border-color:rgba(255,255,255,.35) !important; }
 
   /* ════════ SCROLL SEQUENCE ════════ */
-  #sequence { height:600vh; position:relative; }
+  #sequence { height:900vh; position:relative; }
   #seq-sticky {
     position:sticky; top:0; height:100vh; overflow:hidden;
     background:#000; display:flex; align-items:center; justify-content:center; isolation:isolate;
@@ -949,31 +949,32 @@ function onScroll(){
     videoTriggered = true;
     video.play().catch(()=>{});
   }
-  if(p >= 0.75 && !video.paused) video.pause();
-  if(p < 0.75 && videoTriggered && video.paused && video.currentTime < video.duration)
+  if(p >= 0.72 && !video.paused) video.pause();
+  if(p < 0.72 && videoTriggered && video.paused && video.currentTime < video.duration)
     video.play().catch(()=>{});
 
   if(Math.abs(p-lastP)<0.0005)return;
   lastP=p;
 
-  /* Phase timing (600vh scroll):
-     0.00–0.15  video plays inside letterforms (text visible)
-     0.15–0.45  bg fades black→white, video floods full screen
-     0.45–0.55  text fades out, video dominates
-     0.55–0.75  video continues playing openly — the main show
-     0.75–0.88  dark veil fades in over the video
-     0.88–0.97  CTA appears, scroll locks */
-  const bgW=easeOut(prog(p,.15,.45));
+  /* Phase timing (900vh scroll):
+     0.00–0.10  video plays inside letterforms
+     0.10–0.30  bg fades black→white, video floods screen
+     0.30–0.38  text fades out
+     0.38–0.65  video plays openly — the main show
+     0.65–0.72  video finishes, you sit in the world (hang)
+     0.72–0.85  dark veil slowly fades in
+     0.85–0.97  CTA appears, scroll locks */
+  const bgW=easeOut(prog(p,.10,.30));
   const c=Math.round(bgW*255);
   seqStick.style.backgroundColor=`rgb(${c},${c},${c})`;
 
-  seqTitle.style.opacity=1-easeOut(prog(p,.35,.50));
-  seqEyebrow.style.opacity=1-easeOut(prog(p,.30,.45));
-  seqSub.style.opacity=1-easeOut(prog(p,.30,.45));
-  seqLogo.style.opacity=(1-easeOut(prog(p,.30,.45)))*.92;
-  seqVeil.style.background=`rgba(0,0,0,${easeOut(prog(p,.70,.85))*.85})`;
+  seqTitle.style.opacity=1-easeOut(prog(p,.25,.38));
+  seqEyebrow.style.opacity=1-easeOut(prog(p,.22,.35));
+  seqSub.style.opacity=1-easeOut(prog(p,.22,.35));
+  seqLogo.style.opacity=(1-easeOut(prog(p,.22,.35)))*.92;
+  seqVeil.style.background=`rgba(0,0,0,${easeOut(prog(p,.72,.88))*.85})`;
 
-  const ctaP=easeOut(prog(p,.82,.97));
+  const ctaP=easeOut(prog(p,.85,.97));
   seqCta.style.opacity=ctaP;
   seqCta.style.transform=`translateY(${(1-ctaP)*28}px)`;
   seqCta.style.pointerEvents=ctaP>.12?'all':'none';
