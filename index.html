@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>KlawTrade — Algorithmic Edge</title>
 
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='6' fill='%2309090b'/%3E%3Ctext x='22' y='33' text-anchor='middle' font-size='30' fill='%23c8c8cc' font-family='Arial%2CHelvetica%2Csans-serif' font-weight='700'%3EK%3C%2Ftext%3E%3Ctext x='10' y='14' text-anchor='middle' font-size='11' fill='%23c8c8cc' font-family='%27Courier+New%27%2Cmonospace' font-weight='900'%3E$%3C%2Ftext%3E%3C%2Fsvg%3E"/>
+  <link rel="icon" type="image/png" href="./favicon.png"/>
 
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=IBM+Plex+Mono:wght@300;400;500&family=Bebas+Neue&display=swap" rel="stylesheet"/>
@@ -136,7 +136,7 @@
   .nav-cta:hover { background:rgba(255,255,255,.05); color:#fff !important; border-color:rgba(255,255,255,.35) !important; }
 
   /* ════════ SCROLL SEQUENCE ════════ */
-  #sequence { height:380vh; position:relative; }
+  #sequence { height:600vh; position:relative; }
   #seq-sticky {
     position:sticky; top:0; height:100vh; overflow:hidden;
     background:#000; display:flex; align-items:center; justify-content:center; isolation:isolate;
@@ -940,33 +940,40 @@ function onScroll(){
   const seqH=seq.offsetHeight-window.innerHeight;
   const p=clamp((window.scrollY-seqTop)/seqH,0,1);
 
-  if(!unlocked&&p>=0.93){
+  if(!unlocked&&p>=0.95){
     if(lockPosition===null)lockPosition=window.scrollY;
     else if(window.scrollY<lockPosition-4){window.scrollTo({top:lockPosition,behavior:'instant'});return;}
   }
-  /* Trigger video play on first scroll, pause when past reveal */
+  /* Trigger video play on first scroll, pause when veil covers it */
   if(!videoTriggered && window.scrollY > 4){
     videoTriggered = true;
     video.play().catch(()=>{});
   }
-  if(p >= 0.60 && !video.paused) video.pause();
-  if(p < 0.60 && videoTriggered && video.paused && video.currentTime < video.duration)
+  if(p >= 0.75 && !video.paused) video.pause();
+  if(p < 0.75 && videoTriggered && video.paused && video.currentTime < video.duration)
     video.play().catch(()=>{});
 
   if(Math.abs(p-lastP)<0.0005)return;
   lastP=p;
 
-  const bgW=easeOut(prog(p,.20,.55));
+  /* Phase timing (600vh scroll):
+     0.00–0.15  video plays inside letterforms (text visible)
+     0.15–0.45  bg fades black→white, video floods full screen
+     0.45–0.55  text fades out, video dominates
+     0.55–0.75  video continues playing openly — the main show
+     0.75–0.88  dark veil fades in over the video
+     0.88–0.97  CTA appears, scroll locks */
+  const bgW=easeOut(prog(p,.15,.45));
   const c=Math.round(bgW*255);
   seqStick.style.backgroundColor=`rgb(${c},${c},${c})`;
 
-  seqTitle.style.opacity=1-easeOut(prog(p,.42,.58));
-  seqEyebrow.style.opacity=1-easeOut(prog(p,.36,.52));
-  seqSub.style.opacity=1-easeOut(prog(p,.36,.52));
-  seqLogo.style.opacity=(1-easeOut(prog(p,.36,.52)))*.92;
-  seqVeil.style.background=`rgba(0,0,0,${easeOut(prog(p,.55,.72))*.82})`;
+  seqTitle.style.opacity=1-easeOut(prog(p,.35,.50));
+  seqEyebrow.style.opacity=1-easeOut(prog(p,.30,.45));
+  seqSub.style.opacity=1-easeOut(prog(p,.30,.45));
+  seqLogo.style.opacity=(1-easeOut(prog(p,.30,.45)))*.92;
+  seqVeil.style.background=`rgba(0,0,0,${easeOut(prog(p,.70,.85))*.85})`;
 
-  const ctaP=easeOut(prog(p,.72,.95));
+  const ctaP=easeOut(prog(p,.82,.97));
   seqCta.style.opacity=ctaP;
   seqCta.style.transform=`translateY(${(1-ctaP)*28}px)`;
   seqCta.style.pointerEvents=ctaP>.12?'all':'none';
